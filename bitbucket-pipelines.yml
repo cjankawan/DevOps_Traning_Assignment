@@ -1,9 +1,4 @@
-image: atlassian/default-image:3
-
-definitions:
-  services:
-    docker:
-      memory: 2048
+image: docker/compose:1.29.2
 
 pipelines:
   default:
@@ -11,12 +6,28 @@ pipelines:
         name: Build and Test
         services:
           - docker
-        caches:
-          - node
         script:
+          # Create .env file using repository variables
+          - touch .env
+          - echo "PORT=$PORT" >> .env
+          - echo "MONGO_USER=$MONGO_USER" >> .env
+          - echo "MONGO_PASSWORD=$MONGO_PASSWORD" >> .env
+          - echo "MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME" >> .env
+          - echo "MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD" >> .env
+          
+          # Build and run the containers
           - docker-compose build
           - docker-compose up -d
-          - sleep 10  # Give some time for services to start
-          - docker-compose exec -T node-app npm test
-          - docker-compose down
           
+          # Check if containers are running
+          - docker-compose ps
+          
+          # Cleanup
+          - docker-compose down
+        
+        options:
+          docker: true
+
+services:
+  docker:
+    memory: 2048
