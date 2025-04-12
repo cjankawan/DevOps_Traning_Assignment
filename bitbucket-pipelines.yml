@@ -1,32 +1,27 @@
-image: docker/compose:1.29.2  # Includes both Docker + Compose
+image: atlassian/default-image:latest  # Official Bitbucket CI image with Docker support
 
 pipelines:
   default:
     - step:
-        name: Build and Run App
+        name: Build and Run Docker App
         services:
           - docker
-        size: 2x  # Gives extra memory/CPU (optional)
         caches:
           - docker
+        size: 2x
         script:
-          - echo "Starting Build Process..."
-          
-          # Show working directory and files
-          - pwd
-          - ls -la
+          - echo "Starting CI build..."
 
-          # Build Docker images using docker-compose
+          # Install Docker Compose manually (not included by default)
+          - apk add --no-cache docker-compose
+
+          # Build containers
           - docker-compose -f docker-compose.yml build
 
-          # (Optional) Spin up containers for testing
+          # Optionally bring up the stack to verify
           - docker-compose -f docker-compose.yml up -d
-
-          # Wait a few seconds for services to start
-          - sleep 10
 
           # Show running containers
           - docker ps
 
-          # Done!
-          - echo "✅ Pipeline complete!"
+          - echo "Build completed successfully."
