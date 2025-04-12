@@ -1,36 +1,32 @@
-image: docker:20.10.7
-
-options:
-  size: 2x
+image: docker/compose:1.29.2  # Includes both Docker + Compose
 
 pipelines:
   default:
     - step:
-        name: Build and Deploy Node App
-        image: docker:20.10.7
+        name: Build and Run App
         services:
           - docker
+        size: 2x  # Gives extra memory/CPU (optional)
+        caches:
+          - docker
         script:
-          - echo "🔧 Setting up Docker Compose for CI/CD"
+          - echo "Starting Build Process..."
+          
+          # Show working directory and files
+          - pwd
+          - ls -la
 
-          # Install docker-compose manually (Bitbucket doesn't include it by default)
-          - apk add --no-cache curl py3-pip
-          - pip install docker-compose
-
-          # Print Docker and Compose versions
-          - docker -v
-          - docker-compose -v
-
-          # Build Docker containers
+          # Build Docker images using docker-compose
           - docker-compose -f docker-compose.yml build
 
-          # Optionally run the services
+          # (Optional) Spin up containers for testing
           - docker-compose -f docker-compose.yml up -d
 
-          # List containers
+          # Wait a few seconds for services to start
+          - sleep 10
+
+          # Show running containers
           - docker ps
 
-definitions:
-  services:
-    docker:
-      memory: 2048
+          # Done!
+          - echo "✅ Pipeline complete!"
