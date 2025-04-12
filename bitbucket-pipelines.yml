@@ -1,34 +1,36 @@
-# bitbucket-pipelines.yml
-image: docker:20.10.7  # base image for Docker support
+image: docker:20.10.7
 
 options:
-  size: 2x  # (optional) gives more resources during build
+  size: 2x
 
 pipelines:
   default:
     - step:
         name: Build and Deploy Node App
+        image: docker:20.10.7
         services:
           - docker
-        caches:
-          - docker
         script:
-          # Print current directory
-          - echo "🔧 Starting CI/CD pipeline..."
-          
-          # Log in to Docker Hub (if pushing to a registry)
-          # - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          - echo "🔧 Setting up Docker Compose for CI/CD"
 
-          # Build docker images
-          - docker compose -f docker-compose.yml build
+          # Install docker-compose manually (Bitbucket doesn't include it by default)
+          - apk add --no-cache curl py3-pip
+          - pip install docker-compose
 
-          # (Optional) run unit tests if you have any
-          # - docker compose run --rm node-app npm test
+          # Print Docker and Compose versions
+          - docker -v
+          - docker-compose -v
 
-          # (Optional) simulate running the app
-          - docker compose up -d
+          # Build Docker containers
+          - docker-compose -f docker-compose.yml build
 
-          # Show running containers
+          # Optionally run the services
+          - docker-compose -f docker-compose.yml up -d
+
+          # List containers
           - docker ps
 
-          # (Optional) deploy step here, like SCP or push to remote server
+definitions:
+  services:
+    docker:
+      memory: 2048
