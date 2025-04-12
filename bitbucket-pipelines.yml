@@ -1,27 +1,22 @@
-image: atlassian/default-image:latest  # Official Bitbucket CI image with Docker support
+image: atlassian/default-image:3
+
+definitions:
+  services:
+    docker:
+      memory: 2048
 
 pipelines:
   default:
     - step:
-        name: Build and Run Docker App
+        name: Build and Test
         services:
           - docker
         caches:
-          - docker
-        size: 2x
+          - node
         script:
-          - echo "Starting CI build..."
-
-          # Install Docker Compose manually (not included by default)
-          - apk add --no-cache docker-compose
-
-          # Build containers
-          - docker-compose -f docker-compose.yml build
-
-          # Optionally bring up the stack to verify
-          - docker-compose -f docker-compose.yml up -d
-
-          # Show running containers
-          - docker ps
-
-          - echo "Build completed successfully."
+          - docker-compose build
+          - docker-compose up -d
+          - sleep 10  # Give some time for services to start
+          - docker-compose exec -T node-app npm test
+          - docker-compose down
+          
