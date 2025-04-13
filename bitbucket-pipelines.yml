@@ -1,33 +1,31 @@
-image: docker/compose:1.29.2
+image: atlassian/default-image:latest
+
+options:
+  size: 2x  # Gives extra memory and CPU for builds
 
 pipelines:
   default:
     - step:
-        name: Build and Test
+        name: Build and Run Docker Compose App
         services:
           - docker
+        caches:
+          - docker
         script:
-          # Create .env file using repository variables
-          - touch .env
-          - echo "PORT=$PORT" >> .env
-          - echo "MONGO_USER=$MONGO_USER" >> .env
-          - echo "MONGO_PASSWORD=$MONGO_PASSWORD" >> .env
-          - echo "MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME" >> .env
-          - echo "MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD" >> .env
-          
-          # Build and run the containers
-          - docker-compose build
-          - docker-compose up -d
-          
-          # Check if containers are running
-          - docker-compose ps
-          
-          # Cleanup
-          - docker-compose down
-        
-        options:
-          docker: true
+          - echo "Installing Docker Compose..."
+          - apk add --no-cache docker-compose
 
-services:
-  docker:
-    memory: 2048
+          - echo "Building Docker containers..."
+          - docker-compose -f docker-compose.yml build
+
+          - echo "Starting containers in background..."
+          - docker-compose -f docker-compose.yml up -d
+
+          - echo "Showing running containers..."
+          - docker ps
+
+          # Optional: wait for app to boot
+          - sleep 10
+
+          # Optional: check logs
+          - docker-compose logs --tail=50
