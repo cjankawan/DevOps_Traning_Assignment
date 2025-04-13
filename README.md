@@ -34,3 +34,5 @@
 # Backup location
     - "./db_backups"
 
+# Bitbucket repository link
+    - https://bitbucket.org/cjankawan/devops_traning_assignment
