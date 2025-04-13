@@ -41,6 +41,9 @@ pipelines:
           # Cleanup
           - docker-compose down
 
+          # Pushing image to Docker Hub
+          - docker push cjankawan/node_app
+
 services:
   docker:
     memory: 2048
