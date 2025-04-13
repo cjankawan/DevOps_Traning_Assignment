@@ -41,9 +41,9 @@ pipelines:
           # Cleanup
           - docker-compose down
 
-          # Authenticate and push the image to Docker Hub
+          # Login & Push
           - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          - docker push $DOCKER_USERNAME/node_app
+          - docker push cjankawan/node_app
 
 services:
   docker:
