@@ -1,31 +1,29 @@
-image: atlassian/default-image:latest
-
-options:
-  size: 2x  # Gives extra memory and CPU for builds
+image: atlassian/default-image:3
 
 pipelines:
   default:
     - step:
-        name: Build and Run Docker Compose App
+        name: Build and Run Docker Compose
         services:
           - docker
         caches:
           - docker
         script:
+          - echo "Starting CI/CD pipeline..."
+
+          # Print Docker version
+          - docker --version
+
+          # Install Docker Compose
           - echo "Installing Docker Compose..."
-          - apk add --no-cache docker-compose
+          - apt-get update && apt-get install -y curl
+          - curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          - chmod +x /usr/local/bin/docker-compose
+          - docker-compose --version
 
-          - echo "Building Docker containers..."
+          # Build and run containers
           - docker-compose -f docker-compose.yml build
-
-          - echo "Starting containers in background..."
           - docker-compose -f docker-compose.yml up -d
 
-          - echo "Showing running containers..."
+          # Show running containers
           - docker ps
-
-          # Optional: wait for app to boot
-          - sleep 10
-
-          # Optional: check logs
-          - docker-compose logs --tail=50
