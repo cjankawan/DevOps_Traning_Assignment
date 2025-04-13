@@ -15,6 +15,22 @@ pipelines:
           - echo "MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME" >> .env
           - echo "MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD" >> .env
           
+          # Create a docker-compose.override.yml file to modify the volume configuration for CI
+          - |
+            cat > docker-compose.override.yml << EOF
+            version: "3"
+            services:
+              mongo:
+                volumes:
+                  - ./mongo-data:/data/db
+            volumes:
+              mongo-db:
+                driver: local
+            EOF
+          
+          # Make the directory for mongo data
+          - mkdir -p mongo-data
+          
           # Build and run the application
           - docker-compose build
           - docker-compose up -d
