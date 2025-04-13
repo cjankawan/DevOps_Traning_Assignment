@@ -21,6 +21,8 @@ pipelines:
           - chmod +x /usr/local/bin/docker-compose
           - docker-compose --version
 
+          - export DOCKER_BUILDKIT=0
+
           # Build and run containers
           - docker-compose -f docker-compose.yml build
           - docker-compose -f docker-compose.yml up -d
