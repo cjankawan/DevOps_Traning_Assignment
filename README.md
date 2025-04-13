@@ -36,3 +36,6 @@
 
 # Bitbucket repository link
     - https://bitbucket.org/cjankawan/devops_traning_assignment
+
+# DockerHub repository link
+    - https://hub.docker.com/repository/docker/cjankawan/node_app
